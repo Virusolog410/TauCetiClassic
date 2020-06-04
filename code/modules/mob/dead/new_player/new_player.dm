@@ -24,6 +24,10 @@
 	new_player_list -= src
 	return ..()
 
+/mob/dead/new_player/say(msg)
+	if(client)
+		client.ooc(msg)
+
 /mob/dead/new_player/verb/new_player_panel()
 	set src = usr
 	new_player_panel_proc()
@@ -357,6 +361,9 @@ commented cause polls are kinda broken now, needs refactoring */
 
 	if(!issilicon(character))
 		SSquirks.AssignQuirks(character, character.client, TRUE)
+
+	if(character.client)
+		character.client.guard.time_velocity_spawn = world.timeofday
 
 	qdel(src)
 

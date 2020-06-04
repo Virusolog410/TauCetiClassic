@@ -59,6 +59,8 @@
 
 	voice = GetVoice()
 
+	handle_combat()
+
 	//No need to update all of these procs if the guy is dead.
 	if(stat != DEAD && !IS_IN_STASIS(src))
 		if(SSmob.times_fired%4==2 || failed_last_breath || (health < config.health_threshold_crit)) 	//First, resolve location and get a breath
@@ -168,7 +170,7 @@
 			visible_message("<span class='danger'>[src] starts having a seizure!</span>", self_message = "<span class='warning'>You have a seizure!</span>")
 			Paralyse(10)
 			make_jittery(1000)
-	if (disabilities & COUGHING || HAS_TRAIT(src, TRAIT_COUGH))
+	if ((disabilities & COUGHING || HAS_TRAIT(src, TRAIT_COUGH)) && !reagents.has_reagent("dextromethorphan"))
 		if ((prob(5) && paralysis <= 1))
 			drop_item()
 			spawn( 0 )
@@ -352,7 +354,7 @@
 	var/datum/gas_mixture/breath
 
 	//First, check if we can breathe at all
-	if(handle_drowning() || health < config.health_threshold_crit && !reagents.has_reagent("inaprovaline"))
+	if((handle_drowning() || health < config.health_threshold_crit) && !reagents.has_reagent("inaprovaline") && !HAS_TRAIT(src, TRAIT_AV))
 		losebreath = max(2, losebreath + 1)
 
 	if(losebreath>0) //Suffocating so do not take a breath
@@ -1046,7 +1048,7 @@
 			update_inv_wear_suit()
 	else
 		if((has_quirk(/datum/quirk/fatness) || overeatduration >= 500) && isturf(loc))
-			if(!species.flags[IS_SYNTHETIC] && !species.flags[IS_PLANT])
+			if(!species.flags[IS_SYNTHETIC] && !species.flags[IS_PLANT] && !species.flags[NO_FAT])
 				ADD_TRAIT(src, TRAIT_FAT, OBESITY_TRAIT)
 				update_body()
 				update_mutantrace()
@@ -1439,22 +1441,22 @@
 			if(stat == DEAD)
 				healthdoll.icon_state = "healthdoll_DEAD"
 			else
-				healthdoll.icon_state = "healthdoll_OVERLAY"
+				healthdoll.icon_state = "healthdoll_EMPTY"
 				for(var/obj/item/organ/external/BP in bodyparts)
-					var/damage = BP.burn_dam + BP.brute_dam
-					var/comparison = (BP.max_damage / 5)
-					var/icon_num = 0
-					if(damage)
-						icon_num = 1
-					if(damage > (comparison))
-						icon_num = 2
-					if(damage > (comparison*2))
-						icon_num = 3
-					if(damage > (comparison*3))
-						icon_num = 4
-					if(damage > (comparison*4))
-						icon_num = 5
-					if(icon_num)
+					if(BP && !BP.is_stump)
+						var/damage = BP.burn_dam + BP.brute_dam
+						var/comparison = (BP.max_damage / 5)
+						var/icon_num = 0
+						if(damage)
+							icon_num = 1
+						if(damage > (comparison))
+							icon_num = 2
+						if(damage > (comparison*2))
+							icon_num = 3
+						if(damage > (comparison*3))
+							icon_num = 4
+						if(damage > (comparison*4))
+							icon_num = 5
 						healthdoll.add_overlay(image('icons/mob/screen_gen.dmi',"[BP.body_zone][icon_num]"))
 
 		if(nutrition_icon)

@@ -157,7 +157,6 @@ REAGENT SCANNER
 	if(!irradiate)
 		return
 	if(!used)
-		msg_admin_attack("<span = 'danger'>[user] ([user.ckey]) irradiated [M.name] ([M.ckey])</span>", user)
 		var/cooldown = round(max(10, (intensity*5 - wavelength/4))) * 10
 		used = 1
 		icon_state = "health1"
@@ -165,8 +164,7 @@ REAGENT SCANNER
 			used = 0
 			icon_state = "health"
 		to_chat(user,"<span class='warning'>Successfully irradiated [M].</span>")
-		M.attack_log += text("\[[time_stamp()]\]<font color='orange'> Has been irradiated by [user.name] ([user.ckey])</font>")
-		user.attack_log += text("\[[time_stamp()]\] <font color='red'>irradiated [M.name]'s ([M.ckey])</font>")
+		M.log_combat(user, "irradiated with [name]")
 		spawn((wavelength+(intensity*4))*5)
 			if(M)
 				if(intensity >= 5)
@@ -260,7 +258,7 @@ REAGENT SCANNER
 	analyze_gases(user.loc, user,advanced_mode)
 	return TRUE
 
-/obj/item/device/analyzer/afterattack(obj/O, mob/user, proximity)
+/obj/item/device/analyzer/afterattack(atom/target, mob/user, proximity, params)
 	if(!proximity)
 		return
 	if (user.incapacitated())
@@ -268,7 +266,10 @@ REAGENT SCANNER
 	if (!(istype(usr, /mob/living/carbon/human) || ticker) && ticker.mode.name != "monkey")
 		to_chat(usr, "<span class='warning'>You don't have the dexterity to do this!</span>")
 		return
-	if(istype(O) && O.simulated)
+	if(!isobj(target))
+		return
+	var/obj/O = target
+	if(O.simulated)
 		analyze_gases(O, user, advanced_mode)
 
 /obj/item/device/mass_spectrometer
@@ -301,8 +302,6 @@ REAGENT SCANNER
 		icon_state = initial(icon_state)
 
 /obj/item/device/mass_spectrometer/attack_self(mob/user)
-	if (user.stat)
-		return
 	if (crit_fail)
 		to_chat(user, "<span class='warning'>This device has critically failed and is no longer functional!</span>")
 		return
@@ -361,14 +360,13 @@ REAGENT SCANNER
 	var/details = 0
 	var/recent_fail = 0
 
-/obj/item/device/reagent_scanner/afterattack(obj/O, mob/user)
-	if (user.stat)
-		return
+/obj/item/device/reagent_scanner/afterattack(atom/target, mob/user, proximity, params)
 	if (!(istype(user, /mob/living/carbon/human) || ticker) && ticker.mode.name != "monkey")
 		to_chat(user, "<span class='warning'>You don't have the dexterity to do this!</span>")
 		return
-	if(!istype(O))
+	if(!isobj(target))
 		return
+	var/obj/O = target
 	if (crit_fail)
 		to_chat(user, "<span class='warning'>This device has critically failed and is no longer functional!</span>")
 		return
@@ -471,11 +469,13 @@ REAGENT SCANNER
 		scanned_type = /obj/item/weapon/reagent_containers/food/snacks/ectoplasm
 		to_chat(user, "<span class='notice'>You reset the scanned object of the scanner.</span>")
 
-/obj/item/device/occult_scanner/afterattack(mob/M, mob/user)
-	if(user && user.client)
-		if(ishuman(M) && M.stat == DEAD)
-			user.visible_message("<span class='notice'>[user] scans [M], the air around them humming gently.</span>",
-			                     "<span class='notice'>[M] was [pick("possessed", "devoured", "destroyed", "murdered", "captured")] by [pick("Cthulhu", "Mi-Go", "Elder God", "dark spirit", "Outsider", "unknown alien creature")]</span>")
+/obj/item/device/occult_scanner/afterattack(atom/target, mob/user, proximity, params)
+	if(!ishuman(target))
+		return
+	var/mob/living/carbon/human/H = target
+	if(user && user.client && H.stat == DEAD)
+		user.visible_message("<span class='notice'>[user] scans [H], the air around them humming gently.</span>",
+			                 "<span class='notice'>[H] was [pick("possessed", "devoured", "destroyed", "murdered", "captured")] by [pick("Cthulhu", "Mi-Go", "Elder God", "dark spirit", "Outsider", "unknown alien creature")]</span>")
 
 /obj/item/device/contraband_finder
 	name = "Contrband Finder"
@@ -640,7 +640,7 @@ REAGENT SCANNER
 /obj/item/device/contraband_finder/attack(mob/M, mob/user)
 	return
 
-/obj/item/device/contraband_finder/afterattack(atom/target, mob/user, proximity)
+/obj/item/device/contraband_finder/afterattack(atom/target, mob/user, proximity, params)
 	if(!proximity)
 		return
 	scan(target, user)

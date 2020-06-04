@@ -15,9 +15,10 @@
 		access_heads, access_construction, access_sec_doors, access_minisat,
 		access_ce, access_RC_announce, access_keycard_auth, access_tcomsat, access_ai_upload, access_engineering_lobby
 	)
+	salary = 250
 	minimal_player_age = 7
 	minimal_player_ingame_minutes = 2400
-	restricted_species = list(UNATHI, TAJARAN, DIONA)
+	restricted_species = list(UNATHI, TAJARAN, VOX, DIONA)
 
 	survival_kit_items = list(/obj/item/weapon/tank/emergency_oxygen/engi)
 
@@ -31,7 +32,7 @@
 		if(4) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel/eng(H), SLOT_BACK)
 		if(5) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel(H), SLOT_BACK)
 	H.equip_to_slot_or_del(new /obj/item/clothing/under/rank/chief_engineer(H), SLOT_W_UNIFORM)
-	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/workboots(H), SLOT_SHOES)
+	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/boots/work(H), SLOT_SHOES)
 	H.equip_to_slot_or_del(new /obj/item/clothing/head/hardhat/white(H), SLOT_HEAD)
 	H.equip_to_slot_or_del(new /obj/item/weapon/storage/belt/utility/full(H), SLOT_BELT)
 	H.equip_to_slot_or_del(new /obj/item/clothing/gloves/black(H), SLOT_GLOVES)
@@ -57,6 +58,7 @@
 	idtype = /obj/item/weapon/card/id/eng
 	access = list(access_engine, access_engine_equip, access_tech_storage, access_maint_tunnels, access_external_airlocks, access_construction, access_engineering_lobby)
 	alt_titles = list("Maintenance Technician","Engine Technician","Electrician")
+	salary = 160
 	minimal_player_age = 3
 	minimal_player_ingame_minutes = 540
 
@@ -72,7 +74,7 @@
 		if(4) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel/eng(H), SLOT_BACK)
 		if(5) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel(H), SLOT_BACK)
 	H.equip_to_slot_or_del(new /obj/item/clothing/under/rank/engineer(H), SLOT_W_UNIFORM)
-	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/workboots(H), SLOT_SHOES)
+	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/boots/work(H), SLOT_SHOES)
 	H.equip_to_slot_or_del(new /obj/item/weapon/storage/belt/utility/full(H), SLOT_BELT)
 	if(prob(75))
 		H.equip_to_slot_or_del(new /obj/item/clothing/head/hardhat/yellow(H), SLOT_HEAD)
@@ -99,6 +101,7 @@
 	selection_color = "#fff5cc"
 	idtype = /obj/item/weapon/card/id/eng
 	access = list(access_atmospherics, access_maint_tunnels, access_emergency_storage, access_construction, access_external_airlocks, access_engineering_lobby)
+	salary = 160
 	minimal_player_age = 3
 	minimal_player_ingame_minutes = 600
 
@@ -114,7 +117,7 @@
 		if(4) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel/eng(H), SLOT_BACK)
 		if(5) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel(H), SLOT_BACK)
 	H.equip_to_slot_or_del(new /obj/item/clothing/under/rank/atmospheric_technician(H), SLOT_W_UNIFORM)
-	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/workboots(H), SLOT_SHOES)
+	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/boots/work(H), SLOT_SHOES)
 	H.equip_to_slot_or_del(new /obj/item/device/pda/atmos(H), SLOT_L_STORE)
 	H.equip_to_slot_or_del(new /obj/item/weapon/storage/belt/utility/atmostech/(H), SLOT_BELT)
 
@@ -137,6 +140,7 @@
 	selection_color = "#fff5cc"
 	idtype = /obj/item/weapon/card/id/eng
 	access = list(access_engineering_lobby, access_construction, access_maint_tunnels)
+	salary = 50
 
 /datum/job/technical_assistant/equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	if(!H)

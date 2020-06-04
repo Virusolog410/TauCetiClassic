@@ -129,6 +129,23 @@
 	name = "heart"
 	organ_tag = O_HEART
 	parent_bodypart = BP_CHEST
+	var/heart_status = HEART_NORMAL
+	var/fibrillation_timer_id = null
+
+/obj/item/organ/internal/heart/proc/heart_stop()
+	heart_status = HEART_FAILURE
+
+/obj/item/organ/internal/heart/proc/heart_fibrillate()
+	var/failing_interval = 1 MINUTE
+	heart_status = HEART_FIBR
+	if(HAS_TRAIT(owner, TRAIT_FAT))
+		failing_interval = 30 SECONDS
+	fibrillation_timer_id = addtimer(CALLBACK(src, .proc/heart_stop), failing_interval, TIMER_UNIQUE|TIMER_STOPPABLE)
+
+/obj/item/organ/internal/heart/proc/heart_normalize()
+	heart_status = HEART_NORMAL
+	deltimer(fibrillation_timer_id)
+	fibrillation_timer_id = null
 
 /obj/item/organ/internal/heart/ipc
 	name = "servomotor"
@@ -156,15 +173,15 @@
 	if (owner.species && owner.species.flags[NO_BREATHE])
 		return
 	if (germ_level > INFECTION_LEVEL_ONE)
-		if(prob(5))
+		if(!owner.reagents.has_reagent("dextromethorphan") && prob(5))
 			owner.emote("cough")		//respitory tract infection
 
 	if(is_bruised())
 		if(prob(2))
-			owner.emote("gasp", 2, "coughs up blood!", TRUE)
+			owner.emote("cough", message = "coughs up blood!")
 			owner.drip(10)
-		if(prob(4))
-			owner.emote("gasp", 2, "gasps for air!")
+		if(prob(4)  && !HAS_TRAIT(owner, TRAIT_AV))
+			owner.emote("gasp", message = "gasps for air!")
 			owner.losebreath += 15
 
 /obj/item/organ/internal/lungs/diona/process()
@@ -271,10 +288,6 @@
 	name = "vacuole"
 	parent_bodypart = BP_GROIN
 
-/obj/item/organ/internal/kidneys/ipc
-	name = "self-diagnosis unit"
-	parent_bodypart = BP_GROIN
-
 /obj/item/organ/internal/kidneys/diona/process()
 	if(damage)
 		if(prob(10))
@@ -282,10 +295,29 @@
 		if(prob(2))
 			to_chat(owner, "<span class='warning'>You notice slight discomfort in your groin.</span>")
 
+/obj/item/organ/internal/kidneys/ipc
+	name = "self-diagnosis unit"
+	parent_bodypart = BP_GROIN
+
+	var/next_warning = 0
+
 /obj/item/organ/internal/kidneys/ipc/process()
+	if(next_warning > world.time)
+		return
+	next_warning = world.time + 10 SECONDS
+
+	var/damage_report = ""
+	var/first = TRUE
+
 	for(var/obj/item/organ/internal/IO in owner.organs)
-		if(IO.is_bruised() && prob(4))
-			to_chat(owner, "<span class='warning bold'>%[uppertext_(IO)]% INJURY DETECTED. CEASE DAMAGE TO %ACCUMULATOR%. REQUEST ASSISTANCE.</span>")
+		if(IO.is_bruised())
+			if(!first)
+				damage_report += "\n"
+			first = FALSE
+			damage_report += "<span class='warning'><b>%[uppertext_(IO.name)]%</b> INJURY DETECTED. CEASE DAMAGE TO <b>%[uppertext_(IO.name)]%</b>. REQUEST ASSISTANCE.</span>"
+
+	if(damage_report != "")
+		to_chat(owner, damage_report)
 
 /obj/item/organ/internal/brain
 	name = "brain"
